@@ -1,11 +1,48 @@
 pipeline {
   agent any
 
+  parameters {
+    choice(
+      name: 'ENV',
+      choices: ['dev', 'staging', 'prod'],
+      description: 'Deployment environment'
+    )
+  }
+
   stages {
     stage('Build') {
       steps {
-        echo 'Building app'
+        echo "Building for ${params.ENV}"
+        sh 'echo Compile step'
       }
+    }
+
+    stage('Test') {
+      steps {
+        echo 'Running tests'
+        sh 'echo Test step'
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        branch 'main'
+      }
+      steps {
+        echo "Deploying to ${params.ENV}"
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'Pipeline succeeded'
+    }
+    failure {
+      echo 'Pipeline failed'
+    }
+    always {
+      echo 'Cleaning workspace'
     }
   }
 }
